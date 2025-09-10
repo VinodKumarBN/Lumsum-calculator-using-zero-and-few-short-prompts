@@ -1,0 +1,417 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lump Sum Investment Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2962FF;
+            --secondary: #00BFA5;
+            --accent: #4CAF50;
+            --dark: #263238;
+            --light: #f5f7fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .calculator-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.2);
+        }
+        
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .range-container input[type="range"] {
+            flex: 1;
+        }
+        
+        .range-value {
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1a53ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #eee;
+            color: #333;
+            margin-left: 1rem;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ddd;
+        }
+        
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+        
+        .interest-earned {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        
+        .chart-container {
+            margin-top: 2rem;
+            height: 300px;
+        }
+        
+        .toggle-container {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        
+        .toggle-option:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .toggle-option:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .toggle-option.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .btn-secondary {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Lump Sum Investment Calculator</h1>
+            <p class="subtitle">Calculate how your one-time investment will grow over time</p>
+        </header>
+        
+        <div class="calculator-card">
+            <div class="input-group">
+                <label for="principal">Initial Investment Amount</label>
+                <input type="number" id="principal" placeholder="e.g. 10000" min="0" value="10000">
+            </div>
+            
+            <div class="input-group">
+                <label for="rate">Annual Interest Rate (%)</label>
+                <div class="range-container">
+                    <input type="range" id="rate-slider" min="0.1" max="30" step="0.1" value="7">
+                    <span class="range-value" id="rate-value">7%</span>
+                </div>
+                <input type="number" id="rate" min="0.1" max="30" step="0.1" value="7">
+            </div>
+            
+            <div class="input-group">
+                <label>Investment Duration</label>
+                <div class="toggle-container">
+                    <div class="toggle-option active" id="years-toggle">Years</div>
+                    <div class="toggle-option" id="months-toggle">Months</div>
+                </div>
+                <input type="number" id="time" min="1" value="10">
+            </div>
+            
+            <div class="input-group">
+                <label for="compounding">Compounding Frequency</label>
+                <select id="compounding">
+                    <option value="1">Annually</option>
+                    <option value="4">Quarterly</option>
+                    <option value="12" selected>Monthly</option>
+                    <option value="365">Daily</option>
+                </select>
+            </div>
+            
+            <div>
+                <button class="btn btn-primary" id="calculate-btn">Calculate</button>
+                <button class="btn btn-secondary" id="reset-btn">Reset</button>
+            </div>
+            
+            <div class="results">
+                <h3>Projected Value</h3>
+                <div class="result-value" id="future-value">$19,672</div>
+                <p class="interest-earned">Total Interest Earned: <span id="interest-earned">$9,672</span></p>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="growth-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const principalInput = document.getElementById('principal');
+            const rateInput = document.getElementById('rate');
+            const rateSlider = document.getElementById('rate-slider');
+            const rateValue = document.getElementById('rate-value');
+            const timeInput = document.getElementById('time');
+            const compoundingSelect = document.getElementById('compounding');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const futureValueDisplay = document.getElementById('future-value');
+            const interestEarnedDisplay = document.getElementById('interest-earned');
+            const yearsToggle = document.getElementById('years-toggle');
+            const monthsToggle = document.getElementById('months-toggle');
+            
+            // Chart setup
+            const ctx = document.getElementById('growth-chart').getContext('2d');
+            let growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Investment Growth',
+                        data: [],
+                        borderColor: '#2962FF',
+                        backgroundColor: 'rgba(41, 98, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Value: $${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Event Listeners
+            rateSlider.addEventListener('input', function() {
+                rateInput.value = this.value;
+                rateValue.textContent = this.value + '%';
+            });
+            
+            rateInput.addEventListener('input', function() {
+                rateSlider.value = this.value;
+                rateValue.textContent = this.value + '%';
+            });
+            
+            yearsToggle.addEventListener('click', function() {
+                yearsToggle.classList.add('active');
+                monthsToggle.classList.remove('active');
+                if (timeInput.value > 50) timeInput.value = 50;
+            });
+            
+            monthsToggle.addEventListener('click', function() {
+                monthsToggle.classList.add('active');
+                yearsToggle.classList.remove('active');
+                if (timeInput.value > 600) timeInput.value = 600;
+            });
+            
+            calculateBtn.addEventListener('click', calculate);
+            resetBtn.addEventListener('click', resetCalculator);
+            
+            // Input change listeners for real-time calculation
+            [principalInput, rateInput, timeInput, compoundingSelect].forEach(element => {
+                element.addEventListener('input', calculate);
+            });
+            
+            // Initial calculation
+            calculate();
+            
+            // Functions
+            function calculate() {
+                const principal = parseFloat(principalInput.value);
+                const rate = parseFloat(rateInput.value) / 100;
+                let time = parseFloat(timeInput.value);
+                const compounding = parseInt(compoundingSelect.value);
+                
+                // Convert months to years if months toggle is active
+                if (monthsToggle.classList.contains('active')) {
+                    time = time / 12;
+                }
+                
+                // Calculate future value
+                const futureValue = principal * Math.pow(1 + (rate / compounding), compounding * time);
+                const interestEarned = futureValue - principal;
+                
+                // Update display
+                futureValueDisplay.textContent = '$' + futureValue.toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                    minimumFractionDigits: 2
+                });
+                
+                interestEarnedDisplay.textContent = '$' + interestEarned.toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                    minimumFractionDigits: 2
+                });
+                
+                // Update chart
+                updateChart(principal, rate, time, compounding);
+            }
+            
+            function updateChart(principal, rate, time, compounding) {
+                const labels = [];
+                const data = [];
+                const periods = Math.ceil(time * compounding);
+                
+                for (let i = 0; i <= periods; i++) {
+                    const currentTime = i / compounding;
+                    const value = principal * Math.pow(1 + (rate / compounding), i);
+                    
+                    labels.push(currentTime.toFixed(1) + (currentTime === 1 ? ' year' : ' years'));
+                    data.push(value);
+                }
+                
+                growthChart.data.labels = labels;
+                growthChart.data.datasets[0].data = data;
+                growthChart.update();
+            }
+            
+            function resetCalculator() {
+                principalInput.value = 10000;
+                rateInput.value = 7;
+                rateSlider.value = 7;
+                rateValue.textContent = '7%';
+                timeInput.value = 10;
+                compoundingSelect.value = 12;
+                yearsToggle.classList.add('active');
+                monthsToggle.classList.remove('active');
+                calculate();
+            }
+        });
+    </script>
+</body>
+</html>
